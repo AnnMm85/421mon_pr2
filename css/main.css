@@ -94,3 +94,21 @@ textarea {
 .cat {
     display: inline-block;
 }
+.div-bord{
+    border: 2px solid #adb2ea;
+    padding: 15px;
+    width: 30%;
+}
+.div-bord-rev{
+    border: 2px solid #adb2ea;
+}
+
+.div-our-bord{
+    display: flex;
+    gap: 10px;
+}
+.div-all-bord-rev{
+    display: flex;
+    gap: 20px;
+    flex-direction: column;
+}

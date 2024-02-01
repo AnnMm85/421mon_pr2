@@ -26,7 +26,7 @@ Vue.component('product', {
                           </div>
                     </div>
                     <p>
-                        <input v-model="newRev">
+                        <input v-model="Re.newRev">
                         <button @click.stop.prevent="addRev">Add Rev</button>
                     </p>             
                 </p> 
@@ -35,37 +35,79 @@ Vue.component('product', {
                <input type="submit" value="Submit"> 
              </p>
         </form>
-                
+
+
         <div>
             <h2>Карточки</h2>
             <p v-if="!reviews.length">There are no reviews yet.</p>
-            <ul>
-                 <li v-for="review in reviews">
-                    <p>{{ review.name }}</p>           
-                    <div>
-                          <div v-for="(rev,n) in review.revs">
-                             <p>
-                             <div>
-                                <input type="checkbox" id="chRev" name="chRev" />
-                                <label class="rev" for="chRev">{{rev}}</label>
-                              </div>
-                             </p>
-                          </div>
+            <div class="div-our-bord">
+                <div class="div-bord">
+                    1
+                    <div class="div-all-bord-rev">
+                         <div class="div-bord-rev" v-for="review in reviews">
+                            <div>{{ review.name }}</div>           
+                            <div>
+                                  <div v-for="(rev,n) in review.revs">
+                                     <p>
+                                     <div>
+                                        <input type="checkbox" id="rev" name="rev" v-bind:checked="Re.Oche" @click="checkPoint(review, reviews, rev)"/>
+                                        <label class="rev" for="rev">{{rev}}</label>
+                                      </div>
+                                     </p>
+                                  </div>
+                            </div>
+                         </div>
                     </div>
-                 </li>
-            </ul>
+                </div>
+                <div class="div-bord">
+                    2
+                    <div class="div-all-bord-rev">
+                         <div class="div-bord-rev" v-for="review in reviews_2">
+                            <div>{{ review.name }}</div>           
+                            <div>
+                                  <div v-for="(rev,n) in review.revs">
+                                     <p>
+                                     <div>
+                                        <input type="checkbox" id="rev" name="rev" v-bind:checked="Re.Oche" @click="checkPoint(review, reviews_2, rev)"/>
+                                        <label class="rev" for="rev">{{rev}}</label>
+                                      </div>
+                                     </p>
+                                  </div>
+                            </div>
+                         </div>
+                    </div>
+                </div>        
+                <div class="div-bord">
+                    3
+                    <div class="div-all-bord-rev">
+                         <div class="div-bord-rev" v-for="review in reviews_3">
+                            <div>{{ review.name }}</div>           
+                            <div>
+                                  <div v-for="(rev,n) in review.revs">
+                                     <p>
+                                     <div>
+                                        <input type="checkbox" id="rev" name="rev" v-bind:checked="Re.Oche" @click="checkPoint(review, reviews_3, rev)"/>
+                                        <label class="rev" for="rev">{{rev}}</label>
+                                      </div>
+                                     </p>
+                                  </div>
+                            </div>
+                         </div>
+                    </div>
+                </div>
+            </div>
+            
         </div>  
 </div>
-
-          
-
     `,
     data() {
         return {
             reviews: [],
+            reviews_2: [],
+            reviews_3: [],
             name: null,
             errors: [],
-            newRev: null,
+            Re:{newRev:null, Oche: false},
             revs: [],
         }
     },
@@ -85,17 +127,55 @@ Vue.component('product', {
 
     },
     methods: {
+        checkPoint(review, rs, rev) {
+            console.log(rev.Oche);
+            rev.Oche=!rev.Oche;
+            console.log(rev.Oche);
+            if (rev.Oche == true) {
+                console.log('Зачекано');
+                const CountRevs = review.revs.length;
+                const completedRevs = review.revs.filter(rev => rev.Oche == true).length;
+                const percentComplete = (completedRevs / CountRevs) * 100;
+
+                if (percentComplete > 50 && percentComplete < 100) {
+                    const index = rs.indexOf(review);
+                    this.reviews.splice(index, 1);
+                    this.reviews_2.push(review);
+                } else if (percentComplete === 100) {
+                    const index = rs.indexOf(review);
+                    this.reviews_2.splice(index, 1);
+                    this.reviews_3.push(review);
+                }
+            }
+            if (rev.Oche == false) {
+                console.log('фолсно');
+                const CountRevs = review.revs.length;
+                const completedRevs = review.revs.filter(rev => rev.Oche == true).length;
+                const percentComplete = (completedRevs / CountRevs) * 100;
+
+                if (percentComplete > 50 && percentComplete < 100) {
+                    const index = rs.indexOf(review);
+                    this.reviews_3.splice(index, 1);
+                    this.reviews_2.push(review);
+                } else if(percentComplete < 50) {
+                    const index = rs.indexOf(review);
+                    this.reviews_2.splice(index, 1);
+                    this.reviews.push(review);
+                }
+            }
+        },
         addRev() {
             // ensure they actually typed something
-            if (!this.newRev) return;
-            this.revs.push(this.newRev);
-            this.newRev = '';
+            if (!this.Re.newRev) return;
+            this.revs.push(this.Re);
+            this.Re.newRev = '';
+            this.Re.Oche = false;
         },
         removeRev(x) {
             this.revs.splice(x, 1);
         },
         onSubmit() {
-            if (this.name && (this.revs.length>=3 && this.revs.length<=5)){
+            if (this.name && (this.revs.length >= 3 && this.revs.length <= 5)) {
                 let productReview = {
                     name: this.name,
                     revs: this.revs,
@@ -109,7 +189,7 @@ Vue.component('product', {
                 if (this.revs.length) this.errors.push("Введите от 3 до 5 задач")
             }
         },
-        saveReviews() {
+        saveReviews(reviews) {
             let parseReview = JSON.stringify(this.reviews);
             localStorage.setItem('reviews', parseReview);
         },
